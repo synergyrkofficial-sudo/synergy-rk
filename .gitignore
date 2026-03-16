@@ -1,0 +1,6 @@
+.env
+synergy.db
+instance/
+__pycache__/
+.venv/
+.venv-1/
