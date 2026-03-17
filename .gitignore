@@ -4,3 +4,7 @@ instance/
 __pycache__/
 .venv/
 .venv-1/
+.venv-2/
+node_modules/
+.vercel/
+frontend/.vercel/

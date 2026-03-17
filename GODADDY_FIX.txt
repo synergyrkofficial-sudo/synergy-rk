@@ -1,0 +1,21 @@
+GoDaddy DNS records for Vercel (synergyrkofficial.com)
+
+Add these DNS records in GoDaddy → DNS Management for your domain.
+
+1) Apex/root domain (synergyrkofficial.com)
+Type: A
+Name: @
+Value: 76.76.21.21
+TTL: 600 seconds (or Default)
+
+2) www subdomain (www.synergyrkofficial.com)
+Type: CNAME
+Name: www
+Value: cname.vercel-dns.com
+TTL: 600 seconds (or Default)
+
+Notes:
+- Do NOT paste "https://" into GoDaddy record fields; use only the hostnames/values above.
+- After saving, DNS can take minutes to a few hours to propagate.
+- In Vercel Dashboard → Project → Settings → Domains, add "synergyrkofficial.com" and "www.synergyrkofficial.com" and wait for Verified.
+

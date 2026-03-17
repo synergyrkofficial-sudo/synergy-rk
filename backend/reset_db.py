@@ -1,7 +1,8 @@
 import sqlite3
 import os
 
-DB_PATH = "synergy.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "synergy.db")
 
 def reset():
     if not os.path.exists(DB_PATH):

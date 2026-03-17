@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=20260317" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" referrerpolicy="no-referrer" />
   <style>
     :root {
       --bg: #0a0b10;
@@ -343,6 +345,7 @@
         <img class="logo-img" src="logo.png?v=20260316" alt="Synergy RK" onerror="this.src='logo.svg';" />
         <div>
           <h1>Synergy RK</h1>
+          <div class="hero-tagline">Your Vision. Our Expertise.</div>
           <p>Digital Architects led by Semi Patel (BCA Architect).</p>
         </div>
       </div>
@@ -419,14 +422,6 @@
             <div class="line total"><span>Total</span><strong id="total">$0</strong></div>
           </div>
         </div>
-
-        <div class="contact">
-          <h3>Direct Contact</h3>
-          <a href="mailto:synergyrk.official@gmail.com">synergyrk.official@gmail.com</a>
-          <a href="https://wa.me/918487855323" target="_blank" rel="noreferrer">+91 8487855323</a>
-          <a href="https://www.instagram.com/synergyrk.official" target="_blank" rel="noreferrer">@synergyrk.official</a>
-          <a href="https://linkedin.com/in/synergyrk" target="_blank" rel="noreferrer">linkedin.com/in/synergyrk</a>
-        </div>
       </aside>
     </main>
 
@@ -492,6 +487,29 @@
         <div id="trackResults" class="track-results"></div>
       </form>
     </section>
+
+    <section id="about" class="about glass" aria-label="About Us">
+      <h2>About Us</h2>
+      <p>At Synergy RK, we bridge the gap between complex ideas and digital reality. Based on a foundation of modern web technologies and a passion for innovation, we specialize in building scalable solutions tailored to your unique needs.</p>
+    </section>
+
+    <footer class="site-footer glass" aria-label="Direct Connect">
+      <div class="site-footer__title">Direct Connect</div>
+      <div class="site-footer__icons" role="navigation" aria-label="Direct connect links">
+        <a class="site-footer__icon" href="https://wa.me/918487855323" target="_blank" rel="noreferrer" aria-label="WhatsApp">
+          <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+        </a>
+        <a class="site-footer__icon" href="mailto:synergyrk.official@gmail.com" aria-label="Email">
+          <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+        </a>
+        <a class="site-footer__icon" href="https://linkedin.com/in/synergyrk" target="_blank" rel="noreferrer" aria-label="LinkedIn">
+          <i class="fa-brands fa-linkedin" aria-hidden="true"></i>
+        </a>
+        <a class="site-footer__icon" href="https://www.instagram.com/synergyrk.official" target="_blank" rel="noreferrer" aria-label="Instagram">
+          <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+        </a>
+      </div>
+    </footer>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
@@ -507,6 +525,20 @@
     const trackForm = document.getElementById('trackForm');
     const trackStatus = document.getElementById('trackStatus');
     const trackResults = document.getElementById('trackResults');
+    const API_BASE = (() => {
+      const override = new URLSearchParams(window.location.search).get('api');
+      if (override) return override.replace(/\/+$/, '');
+
+      const host = window.location.hostname;
+      const isLocal =
+        host === 'localhost' ||
+        host === '127.0.0.1' ||
+        /^192\.168\.\d+\.\d+$/.test(host) ||
+        /^10\.\d+\.\d+\.\d+$/.test(host) ||
+        /^172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+$/.test(host);
+      return isLocal ? 'http://127.0.0.1:5000' : 'https://api.synergyrkofficial.com';
+    })();
+    let backendOnline = false;
 
     const formatUSD = (value) => new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -527,13 +559,15 @@
 
     const checkStatus = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:5000/api/stats', { cache: 'no-store' });
+        const res = await fetch(`${API_BASE}/api/stats`, { cache: 'no-store' });
         if (!res.ok) throw new Error('Bad response');
         const data = await res.json();
         const online = data.status === 'online';
+        backendOnline = online;
         statusDot.classList.toggle('online', online);
         statusText.textContent = online ? 'Backend Online' : 'Backend Offline';
       } catch (err) {
+        backendOnline = false;
         statusDot.classList.remove('online');
         statusText.textContent = 'Backend Offline';
       }
@@ -544,7 +578,7 @@
 
     async function checkout(payload) {
       try {
-        const res = await fetch('http://127.0.0.1:5000/api/book', {
+        const res = await fetch(`${API_BASE}/api/book`, {
           method: 'POST',
           mode: 'cors',
           headers: { 'Content-Type': 'application/json' },
@@ -553,7 +587,7 @@
         const text = await res.text();
         let data = null;
         try {
-          4data = text ? JSON.parse(text) : {};
+          data = text ? JSON.parse(text) : {};
         } catch (err) {
           data = { error: text };
         }
@@ -576,7 +610,7 @@
         .filter(input => input.checked)
         .map(input => input.closest('.card').querySelector('h3').textContent);
 
-      if (statusText.textContent !== 'Online') {
+      if (!backendOnline) {
         formStatus.textContent = 'Backend offline. Please start the backend and try again.';
         return;
       }
@@ -630,7 +664,7 @@
       const email = trackForm.trackEmail.value;
 
       try {
-        const res = await fetch(`http://127.0.0.1:5000/api/track?email=${encodeURIComponent(email)}`);
+        const res = await fetch(`${API_BASE}/api/track?email=${encodeURIComponent(email)}`);
         if (!res.ok) throw new Error('Failed');
         const data = await res.json();
         if (!data.ok || data.count === 0) {

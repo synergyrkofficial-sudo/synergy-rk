@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 import os
 import sqlite3
 import random
@@ -8,17 +8,41 @@ from email.mime.text import MIMEText
 from datetime import datetime, timezone
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from dotenv import load_dotenv
-from twilio.rest import Client
+try:
+    from dotenv import load_dotenv
+except Exception:
+    load_dotenv = None
 
-# Load environment variables
-load_dotenv()
+try:
+    from twilio.rest import Client
+except Exception:
+    Client = None
+
+# Load environment variables (optional in some environments)
+if load_dotenv:
+    load_dotenv()
 
 app = Flask(__name__)
-# Enable CORS for all routes to prevent "Backend Offline" browser blocks
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+# Explicit CORS allowlist for production frontend + local dev
+CORS(
+    app,
+    resources={
+        r"/api/*": {
+            "origins": [
+                "https://synergyrkofficial.com",
+                "https://www.synergyrkofficial.com",
+                r"^http://localhost(:\d+)?$",
+                r"^http://127\.0\.0\.1(:\d+)?$",
+                r"^http://192\.168\.\d+\.\d+(:\d+)?$",
+                r"^http://10\.\d+\.\d+\.\d+(:\d+)?$",
+                r"^http://172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+(:\d+)?$",
+            ]
+        }
+    },
+)
 
-DB_PATH = "synergy.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "synergy.db")
 DEFAULT_COUNTRY_CODE = os.getenv('DEFAULT_COUNTRY_CODE', '91')
 
 def _get_conn():
@@ -51,9 +75,9 @@ def _ensure_schema():
             if 'payment_method' not in columns:
                 conn.execute("ALTER TABLE bookings ADD COLUMN payment_method TEXT")
             conn.commit()
-        print("✅ Database schema verified.")
+        print("[OK] Database schema verified.")
     except Exception as e:
-        print(f"❌ Schema error: {e}")
+        print(f"[ERROR] Schema error: {e}")
 
 _ensure_schema()
 
@@ -81,10 +105,12 @@ def _send_email(subject: str, body: str, recipient: str) -> bool:
             server.send_message(msg)
         return True
     except Exception as e:
-        print(f"❌ Email error: {e}")
+        print(f"[ERROR] Email error: {e}")
         return False
 
 def _send_whatsapp(message: str, phone: str):
+    if Client is None:
+        return
     try:
         sid = os.getenv('TWILIO_ACCOUNT_SID')
         token = os.getenv('TWILIO_AUTH_TOKEN')
@@ -97,13 +123,13 @@ def _send_whatsapp(message: str, phone: str):
             from_=f"whatsapp:{from_n}",
             to=f"whatsapp:{phone}"
         )
-        print(f"✅ WhatsApp sent to {phone}")
+        print(f"[OK] WhatsApp sent to {phone}")
     except Exception as e:
-        print(f"❌ WhatsApp error: {e}")
+        print(f"[ERROR] WhatsApp error: {e}")
 
 @app.route('/api/stats', methods=['GET'])
 def get_status():
-    return jsonify({"status": "online"}), 200
+    return jsonify({"status": "online", "ok": True, "ts": datetime.now(timezone.utc).isoformat()}), 200
 
 @app.route('/api/book', methods=['POST'])
 def create_booking():
@@ -141,7 +167,7 @@ Best Regards,
 Synergy RK | Digital Solutions
 🚀 Your Vision. Our Expertise.
 📧 synergyrk.official@gmail.com
-🌐 www.synergyrk.com
+🌐 https://synergyrkofficial.com
 """
 
     try:
@@ -157,7 +183,7 @@ Synergy RK | Digital Solutions
 
         return jsonify({"success": True, "tracking_code": tracking}), 201
     except Exception as e:
-        print(f"❌ Booking Error: {e}")
+        print(f"[ERROR] Booking Error: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/track', methods=['GET'])
@@ -169,17 +195,22 @@ def track_booking():
         with _get_conn() as conn:
             rows = conn.execute("SELECT * FROM bookings WHERE customer_email = ? ORDER BY id DESC", (email,)).fetchall()
         
-        bookings = [{
-            "tracking_code": r["tracking_code"],
-            "services": r["booking_details"],
-            "total_price": f"${r['total_price']}",
-            "payment_status": r["status"],
-            "created_at": r["created_at"]
-        } for r in rows]
+        bookings = []
+        for r in rows:
+            bookings.append({
+                "id": r["id"],
+                "tracking_code": r["tracking_code"],
+                "services": r["booking_details"],
+                "total_price": float(r["total_price"]) if r["total_price"] is not None else 0,
+                "payment_method": r["payment_method"],
+                "payment_status": r["status"],
+                "created_at": r["created_at"],
+            })
         
-        return jsonify({"ok": True, "bookings": bookings})
+        return jsonify({"ok": True, "count": len(bookings), "bookings": bookings})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
