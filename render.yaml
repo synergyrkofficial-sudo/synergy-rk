@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: synergy-rk-backend
+    env: docker
+    rootDir: ./backend
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+
