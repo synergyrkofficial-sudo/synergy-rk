@@ -33,52 +33,35 @@
             <button id="subBtn" type="submit" class="w-full bg-[#42ffb6] text-black py-3 rounded-lg font-bold">SUBMIT</button>
         </form>
     </section>
+
     <script>
-      // DIRECT RENDER URL (Hardcoded to fix the 307 Redirect error)
+      // THE EXACT URL FROM YOUR SCREENSHOT
       const API_BASE = 'https://synergyrk-backend-final.onrender.com';
   
-      const checkStatus = async () => {
+      async function checkStatus() {
           const dot = document.getElementById('statusDot');
           const text = document.getElementById('statusText');
+          
           try {
-              // Give Render 60 seconds to "wake up"
-              const res = await fetch(`${API_BASE}/api/stats`, { signal: AbortSignal.timeout(60000) });
+              // Wait 60s for Render to wake up
+              const res = await fetch(`${API_BASE}/api/stats`, { mode: 'cors' });
               const data = await res.json();
+              
               if (data.status === 'online') {
                   dot.style.background = '#42ffb6';
                   text.textContent = 'BACKEND ONLINE';
+                  return;
               }
           } catch (err) {
-              dot.style.background = '#ff4242';
-              text.textContent = 'BACKEND OFFLINE';
-              setTimeout(checkStatus, 5000); // Retry every 5 seconds until it wakes up
+              console.log("Waking up...");
           }
-      };
-      checkStatus();
-  
-      // Booking Form Submission
-      document.getElementById('bookForm').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const btn = e.target.querySelector('button');
-          btn.disabled = true;
-          btn.textContent = "SENDING...";
-          try {
-              const res = await fetch(`${API_BASE}/api/book`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                      name: document.getElementById('name').value,
-                      email: document.getElementById('email').value,
-                      details: document.getElementById('details').value
-                  })
-              });
-              if (res.ok) alert("Booking Successful!");
-          } catch (err) { alert("Error: Backend is still waking up."); }
-          finally { btn.disabled = false; btn.textContent = "COMPLETE BOOKING"; }
-      });
-  </script>s
-
-
           
+          dot.style.background = '#ff4242';
+          text.textContent = 'BACKEND OFFLINE (WAKING UP...)';
+          setTimeout(checkStatus, 5000); // Keep trying every 5 seconds
+      }
+  
+      checkStatus();
+  </script>      
 </body>
 </html>
