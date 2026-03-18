@@ -3,65 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Synergy RK</title>
+    <title>Synergy RK | Digital Solutions</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        #statusDot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        :root { --accent: #42ffb6; }
+        body { background: #0a0a0a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-primary { background: var(--accent); color: black; font-weight: 700; transition: all 0.3s ease; }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(66, 255, 182, 0.4); }
+        #statusDot { width: 10px; height: 10px; border-radius: 50%; transition: background 0.5s ease; }
     </style>
 </head>
-<body class="bg-[#0a0a0a] text-white">
+<body>
 
-    <nav class="fixed w-full glass p-4 flex justify-between items-center z-50">
-        <div class="font-bold text-xl">SYNERGY RK</div>
-        <div class="glass px-4 py-1 rounded-full text-xs flex items-center gap-2">
-            <span id="statusDot" class="bg-red-500"></span>
-            <span id="statusText">CONNECTING...</span>
+    <nav class="fixed w-full z-50 glass py-4 px-8 flex justify-between items-center">
+        <div class="text-2xl font-black tracking-tighter">SYNERGY<span class="text-[#42ffb6]">RK</span></div>
+        <div class="flex items-center gap-4">
+            <div class="glass px-4 py-2 rounded-full flex items-center text-xs font-medium">
+                <span id="statusDot" class="bg-red-500 mr-2"></span>
+                <span id="statusText" class="text-gray-400 uppercase tracking-widest">Waking up...</span>
+            </div>
         </div>
     </nav>
 
-    <section class="h-screen flex flex-col justify-center items-center px-6">
-        <h1 class="text-6xl font-black text-center mb-4">DIGITAL <span class="text-[#42ffb6]">SOLUTIONS</span></h1>
-        <button onclick="document.getElementById('booking').scrollIntoView({behavior:'smooth'})" class="bg-[#42ffb6] text-black px-8 py-3 rounded-full font-bold">BOOK NOW</button>
+    <section class="h-screen flex flex-col justify-center items-center px-6 relative">
+        <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_#42ffb6_0%,_transparent_70%)]"></div>
+        <h1 class="text-6xl md:text-8xl font-black text-center leading-none mb-8 z-10 uppercase">
+            Build the<br><span class="text-[#42ffb6]">Future vibe</span>
+        </h1>
+        <p class="text-gray-400 text-center max-w-lg mb-10 z-10">MERN Stack & Python Expert. Digital Automation & AI Influencer Networks.</p>
+        <button onclick="document.getElementById('booking').scrollIntoView({behavior:'smooth'})" class="btn-primary px-10 py-5 rounded-full z-10 uppercase">
+            Get Started
+        </button>
     </section>
 
-    <section id="booking" class="py-20 flex justify-center">
-        <form id="bookForm" class="glass p-8 rounded-2xl w-full max-w-md space-y-4">
-            <input type="text" id="name" placeholder="Name" required class="w-full bg-white/5 p-3 rounded-lg border border-white/10 outline-none focus:border-[#42ffb6]">
-            <input type="email" id="email" placeholder="Email" required class="w-full bg-white/5 p-3 rounded-lg border border-white/10 outline-none focus:border-[#42ffb6]">
-            <textarea id="details" placeholder="Project Details" class="w-full bg-white/5 p-3 rounded-lg border border-white/10 outline-none focus:border-[#42ffb6]"></textarea>
-            <button id="subBtn" type="submit" class="w-full bg-[#42ffb6] text-black py-3 rounded-lg font-bold">SUBMIT</button>
-        </form>
+    <section id="booking" class="py-24 px-6 bg-black">
+        <div class="max-w-xl mx-auto glass p-10 rounded-[2rem]">
+            <h2 class="text-3xl font-bold mb-8">Secure Your Project</h2>
+            <form id="bookForm" class="space-y-6">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-2 uppercase tracking-widest">Full Name</label>
+                    <input type="text" id="name" required class="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-[#42ffb6] outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-2 uppercase tracking-widest">Email Address</label>
+                    <input type="email" id="email" required class="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-[#42ffb6] outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-2 uppercase tracking-widest">Project Details</label>
+                    <textarea id="details" rows="4" required class="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-[#42ffb6] outline-none transition"></textarea>
+                </div>
+                <button type="submit" id="submitBtn" class="w-full btn-primary py-5 rounded-xl uppercase tracking-widest">Complete Booking</button>
+            </form>
+            <div id="formMsg" class="mt-6 text-center hidden font-bold p-4 rounded-xl"></div>
+        </div>
     </section>
 
     <script>
-      // THE EXACT URL FROM YOUR SCREENSHOT
-      const API_BASE = 'https://synergyrk-backend-final.onrender.com';
-  
-      async function checkStatus() {
-          const dot = document.getElementById('statusDot');
-          const text = document.getElementById('statusText');
-          
-          try {
-              // Wait 60s for Render to wake up
-              const res = await fetch(`${API_BASE}/api/stats`, { mode: 'cors' });
-              const data = await res.json();
-              
-              if (data.status === 'online') {
-                  dot.style.background = '#42ffb6';
-                  text.textContent = 'BACKEND ONLINE';
-                  return;
-              }
-          } catch (err) {
-              console.log("Waking up...");
-          }
-          
-          dot.style.background = '#ff4242';
-          text.textContent = 'BACKEND OFFLINE (WAKING UP...)';
-          setTimeout(checkStatus, 5000); // Keep trying every 5 seconds
-      }
-  
-      checkStatus();
-  </script>      
+        // 1. HARDCODED RENDER URL (Confirmed working from logs)
+        const API_BASE = 'https://synergyrk-backend-final.onrender.com';
+
+        // 2. STATUS CHECKER WITH AUTO-RETRY
+        const checkStatus = async () => {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            try {
+                // Use a 60s timeout to allow Render to spin up
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+                const res = await fetch(`${API_BASE}/api/stats`, { 
+                    signal: controller.signal,
+                    mode: 'cors' 
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.status === 'online') {
+                        dot.className = "bg-[#42ffb6]"; // Green
+                        text.textContent = 'Backend Online';
+                        text.className = "text-[#42ffb6]";
+                        return; // Successfully online, stop looping
+                    }
+                }
+            } catch (err) {
+                console.log("Waiting for backend to wake up...");
+            }
+            
+            // If offline, keep it red and retry in 5 seconds
+            dot.className = "bg-red-500";
+            text.textContent = 'Backend Offline';
+            setTimeout(checkStatus, 5000);
+        };
+
+        // Start checking on load
+        checkStatus();
+
+        // 3. FORM SUBMISSION
+        document.getElementById('bookForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const msg = document.getElementById('formMsg');
+            
+            // Gather data (matching the Python data.get keys)
+            const payload = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                details: document.getElementById('details').value
+            };
+
+            btn.disabled = true;
+            btn.textContent = "SENDING...";
+            msg.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/book`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    msg.innerHTML = `✅ Success!<br>Tracking ID: ${result.tracking_code}`;
+                    msg.className = "mt-6 text-center text-[#42ffb6] font-bold p-4 glass";
+                    document.getElementById('bookForm').reset();
+                } else {
+                    throw new Error(result.error || "Submission Failed");
+                }
+            } catch (err) {
+                msg.textContent = "Error: Backend is sleeping. Try again in 60 seconds.";
+                msg.className = "mt-6 text-center text-red-500 font-bold p-4 glass";
+            } finally {
+                msg.classList.remove('hidden');
+                btn.disabled = false;
+                btn.textContent = "Complete Booking";
+            }
+        });
+    </script>
 </body>
 </html>
