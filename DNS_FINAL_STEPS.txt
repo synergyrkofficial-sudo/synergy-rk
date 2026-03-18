@@ -1,0 +1,37 @@
+GoDaddy DNS - Final Steps (synergyrkofficial.com)
+
+IMPORTANT:
+- GoDaddy DNS fields do NOT accept "https://".
+- GoDaddy DNS fields do NOT accept Google redirect URLs like:
+  https://www.google.com/url?...q=...
+  You must use the plain hostname only.
+
+------------------------------------------------------------
+RECORDS TO ADD / UPDATE (GoDaddy → DNS → Add New Record)
+------------------------------------------------------------
+
+1) Apex/root domain
+Type: A
+Name: @
+Value: 216.24.57.1
+TTL: 1 Hour (or Default)
+
+2) WWW subdomain (use hostname only)
+Type: CNAME
+Name: www
+Value: synergyrk-backend-final.onrender.com
+TTL: 1 Hour (or Default)
+
+3) API subdomain (use hostname only)
+Type: CNAME
+Name: api
+Value: synergyrk-backend-final.onrender.com
+TTL: 1 Hour (or Default)
+
+------------------------------------------------------------
+WHAT YOU PROVIDED (NOT VALID FOR GODADDY FIELDS)
+------------------------------------------------------------
+
+- CNAME www Value: https://www.google.com/url?sa=E&source=gmail&q=synergyrk-backend-final.onrender.com
+- CNAME api Value: https://www.google.com/url?sa=E&source=gmail&q=synergyrk-backend-final.onrender.com
+

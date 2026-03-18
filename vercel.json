@@ -1,5 +1,4 @@
 {
-  "version": 2,
   "rewrites": [
     { "source": "/google(.*).html", "destination": "/google$1.html" },
     { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
@@ -21,4 +20,3 @@
     }
   ]
 }
-

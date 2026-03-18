@@ -1,36 +1,29 @@
-# Domain setup help (Vercel + GoDaddy)
+# Domain setup (Render or Railway)
 
-This project is deployed with the Vercel CLI (no GitHub). If the CLI domain linking fails, follow the steps below to manually connect your custom domain **`synergyrkofficial.com`** in the Vercel Dashboard.
+This repo has a frontend (static) and a Flask backend API. The frontend now calls:
+- https://api.synergyrkofficial.com
 
-## 1) Add the domain in Vercel Dashboard
+That means:
+- Your root domain should serve the frontend
+- Your API should live at the api subdomain
 
-1. Open the **Vercel Dashboard**.
-2. Select your **project** (the one deployed from the `frontend/` folder).
-3. Go to **Settings → Domains**.
-4. Click **Add** and enter:
-   - `synergyrkofficial.com`
-5. Click **Add** / **Save**.
+## Render (recommended for backend)
+1) In Render, open your backend service.
+2) Add a custom domain: api.synergyrkofficial.com
+3) Render will show the DNS records you must add at your DNS provider.
+4) Add those exact records (no https://). Wait for verification.
 
-Vercel will show you the DNS records required. For GoDaddy, you’ll typically add a CNAME record for the subdomain.
+## Railway (alternative for backend)
+1) In Railway, open your service.
+2) Add a custom domain: api.synergyrkofficial.com
+3) Railway will show the DNS records. Add them at your DNS provider.
 
-## 2) GoDaddy DNS record (CNAME)
+## Frontend domain
+Host the frontend on any static host (Render Static Site, Vercel, Netlify, GitHub Pages).
+Then:
+- Add synergyrkofficial.com and www.synergyrkofficial.com in that host
+- Use the DNS records that host provides for the apex (@) and www
 
-Add this record in **GoDaddy → DNS Management** for your domain:
-
-- **Type**: CNAME  
-- **Name**: synergyrk  
-- **Value**: cname.vercel-dns.com
-
-## 3) Verify
-
-- Wait for DNS propagation (can take minutes to hours).
-- In Vercel **Settings → Domains**, the domain should move to **Verified** once DNS is correct.
-
-## 4) If you used a Vercel URL first (alias)
-
-If Vercel gave you a deployment URL like `https://xxxxx.vercel.app`, you can point your domain to it with:
-
-```bash
-vercel alias set [YOUR_VERCEL_URL] synergyrkofficial.com
-```
-
+## Quick DNS tips
+- Use only hostnames in DNS values (no https://)
+- Wait for propagation after changes

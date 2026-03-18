@@ -5,6 +5,8 @@ services:
     rootDir: ./backend
     plan: free
     autoDeploy: true
+    domains:
+      - api.synergyrkofficial.com
     envVars:
       - key: PYTHONUNBUFFERED
         value: "1"
